@@ -6,12 +6,8 @@
  *
  * @category  PPE
  * @package   GSB
- * @author    Cheri Bibi - Réseau CERTA <contact@reseaucerta.org>
- * @author    José GIL <jgil@ac-nice.fr>
- * @copyright 2017 Réseau CERTA
- * @license   Réseau CERTA
- * @version   GIT: <0>
- * @link      http://www.php.net/manual/fr/book.pdo.php PHP Data Objects sur php.net
+ * @author    Yoheved Tirtsa Touati
+ * @author    Beth Sefer
  */
 
 /**
@@ -21,23 +17,25 @@
  */
 function estConnecte()
 {
-    return isset($_SESSION['idVisiteur']);
+    return isset($_SESSION['idUtilisateur']);//isset: question: Est qu il y a un IdVisiteur dans la SuperGlobable ?(vrai ou faux?)
 }
 
 /**
  * Enregistre dans une variable session les infos d'un visiteur
- *
- * @param String $idVisiteur ID du visiteur
- * @param String $nom        Nom du visiteur
- * @param String $prenom     Prénom du visiteur
- *
+ * 
+ * @param type $idUtilisateur
+ * @param type $nom
+ * @param type $prenom
+ * @param type $statut
+ * 
  * @return null
  */
-function connecter($idVisiteur, $nom, $prenom)
+function connecter($idUtilisateur, $nom, $prenom,$statut)
 {
-    $_SESSION['idVisiteur'] = $idVisiteur;
+    $_SESSION['idUtilisateur'] = $idUtilisateur;//on insere les valeurs dans la superGlobale SESSION
     $_SESSION['nom'] = $nom;
     $_SESSION['prenom'] = $prenom;
+    $_SESSION['statut'] = $statut;
 }
 
 /**
@@ -80,6 +78,7 @@ function dateAnglaisVersFrancais($maDate)
 }
 
 /**
+ * 
  * Retourne le mois au format aaaamm selon le jour dans le mois
  *
  * @param String $date au format  jj/mm/aaaa
@@ -88,9 +87,9 @@ function dateAnglaisVersFrancais($maDate)
  */
 function getMois($date)
 {
-    @list($jour, $mois, $annee) = explode('/', $date);
-    unset($jour);
-    if (strlen($mois) == 1) {
+    @list($jour, $mois, $annee) = explode('/', $date);//explode:chaque fois qu'il y a un "/", il sépare les variables
+    unset($jour);//retire la variable
+    if (strlen($mois) == 1) { //verifie le nombre de caractere dans le mois
         $mois = '0' . $mois;
     }
     return $annee . $mois;
@@ -246,4 +245,89 @@ function nbErreurs()
     } else {
         return count($_REQUEST['erreurs']);
     }
+}
+/**
+ * retourne le statut=visiteur si il est connecté
+ * @return type
+ */
+function estVisiteurConnecte()
+{
+   if (estConnecte()){
+       return ($_SESSION['statut']== 'visiteur');
+   }  
+}
+/**
+ * retourne le statut=visiteur si il est connecté
+ * @return type
+ */
+function estComptableConnecte()
+{
+   if (estConnecte()){
+       return ($_SESSION['statut']== 'comptable');
+   }  
+   
+}
+/**
+ * recupere le mois suivant
+ * @param type $mois
+ * @return type
+ */
+function getMoisSuivant($mois){
+   $numAnnee = substr($mois, 0, 4);// permet de recuperer les 4 premiers caracteres
+   $numMois = substr($mois, 4, 2);// permet de recuperer a partir du 4eme caractere, les 2 premiers
+   if($numMois=='12'){
+        $numMois='01';
+        $numAnnee++;
+       
+   }else{
+        $numMois ++;
+   }
+   if (strlen($numMois) == 1) { //verifie le nombre de caractere dans le mois
+        $numMois = '0' . $numMois;
+   }
+   return $numAnnee.$numMois;
+   
+}
+/**
+ * recupere le mois precedent
+ * @param type $mois
+ * @return type
+ */
+function getMoisPrecedent($mois){
+   $numAnnee = substr($mois, 0, 4);// permet de recuperer les 4 premiers caracteres
+   $numMois = substr($mois, 4, 2);// permet de recuperer a partir du 4eme caractere, les 2 premiers
+   if($numMois=='01'){
+        $numMois='12';
+        $numAnnee--;
+       
+   }else{
+        $numMois --;
+   }
+   if (strlen($numMois) == 1) { //verifie le nombre de caractere dans le mois
+        $numMois = '0' . $numMois;
+   }
+   return $numAnnee.$numMois;
+   
+}
+function getLesMois($mois){  
+    $lesMois=array();
+    for ($k=0; $k<12; $k++){
+        $mois=getMoisPrecedent($mois); 
+        $numAnnee = substr($mois, 0, 4);// permet de recuperer les 4 premiers caracteres
+        $numMois = substr($mois, 4, 2);
+        
+        if (strlen($numMois) == 1) { //verifie le nombre de caractere dans le mois
+            $numMois = '0' . $numMois;
+        }
+        $lesMois[] = array(
+                'mois' => $numAnnee.$numMois,
+                'numAnnee' => $numAnnee,
+                'numMois'=> $numMois
+            );  
+    }
+    return($lesMois);
+    
+}
+function zero(){
+    
 }
